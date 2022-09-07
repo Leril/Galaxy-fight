@@ -11,10 +11,26 @@ public class Enemy : MonoBehaviour
     [SerializeField] private int hitPoints = 3;
 
     private Scoreboard _scoreboard;
+    private GameObject _parent;
 
     private void Start()
     {
         _scoreboard = FindObjectOfType<Scoreboard>();
+        _parent = GameObject.FindWithTag("SpawnAtRuntime");
+
+        GetRigidbody();
+    }
+
+    private void GetRigidbody()
+    {
+        var rBody = GetComponent<Rigidbody>();
+
+        if (rBody == null)
+        {
+            rBody = gameObject.AddComponent<Rigidbody>();
+        }
+
+        rBody.useGravity = false;
     }
 
     private void OnParticleCollision(GameObject other)
@@ -25,7 +41,7 @@ public class Enemy : MonoBehaviour
     private void ProcessHit()
     {
         _scoreboard.IncreaseScore(scoreToAdd);
-        Instantiate(enemyHitVFX, transform.position, Quaternion.identity);
+        Instantiate(enemyHitVFX, transform.position, Quaternion.identity).transform.parent = _parent.transform;
         hitPoints--;
 
         if (hitPoints == 0)
@@ -36,7 +52,7 @@ public class Enemy : MonoBehaviour
 
     private void KillEnemy()
     {
-        Instantiate(enemyVFX, transform.position, Quaternion.identity);
+        Instantiate(enemyVFX, transform.position, Quaternion.identity).transform.parent = _parent.transform ;
         Destroy(gameObject);
     }
 }
